@@ -300,18 +300,3 @@ python extract_api.py "https://developer.ing.com/api-guide.pdf" \
 ```
 
 
-## 📈 Performance
-
-- **Processing Speed**: ~30-60 seconds per page (depending on content)
-- **Rate Limits**: Respects Firecrawl's 30-second rate limit
-- **Memory Usage**: Optimized for large documentation sites
-- **Concurrent Processing**: Sequential processing to avoid rate limits
-
-## 🔒 Security
-
-- **API Key Protection**: Environment variable configuration
-- **URL Validation**: Input sanitization and validation
-- **Safe File Handling**: Secure file operations
-- **No Sensitive Data Storage**: Only public documentation is extracted
-
-
