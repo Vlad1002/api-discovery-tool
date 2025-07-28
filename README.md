@@ -54,9 +54,11 @@ FIRECRAWL_API_KEY=your_api_key_here
 
 ## 📖 Usage
 
-### Basic Usage
+The tool supports multiple extraction modes depending on your needs. All commands follow the same basic structure but with different parameters for different scenarios.
 
-Extract API documentation from a single URL:
+### 🎯 Basic Usage - Single Page Extraction
+
+Extract API documentation from a single URL without following links:
 
 ```bash
 python extract_api.py "https://developer.bank.com/api-docs" \
@@ -65,9 +67,18 @@ python extract_api.py "https://developer.bank.com/api-docs" \
   --bank example_bank
 ```
 
-### Advanced Usage
+**What happens:**
+- ✅ Extracts content from the specified URL only
+- ✅ Discovers OpenAPI/Swagger specifications if present
+- ✅ Lists relevant links but doesn't follow them
+- ✅ Fast execution (~30-60 seconds)
+- ✅ Minimal API credit usage
 
-Recursive crawling with custom depth:
+**Best for:** Quick documentation overview, specific page analysis
+
+### 🔄 Recursive Crawling - Complete Documentation Extraction
+
+Automatically follows relevant links to build comprehensive documentation:
 
 ```bash
 python extract_api.py "https://developer.bank.com" \
@@ -80,9 +91,24 @@ python extract_api.py "https://developer.bank.com" \
   --verbose
 ```
 
-### PDF Documentation
+**What happens:**
+- ✅ Extracts main page content
+- ✅ Intelligently identifies relevant API documentation links
+- ✅ Follows up to 3 most relevant links per page
+- ✅ Continues recursively up to specified depth
+- ✅ Discovers OpenAPI specs across multiple pages
+- ✅ 30-second delays between requests (rate limiting)
 
-The tool automatically detects and optimizes for PDF files:
+**Recursion Levels:**
+- **Depth 1**: Main page + immediate child pages
+- **Depth 2**: Main page + child pages + grandchild pages  
+- **Depth 3**: Three levels deep (recommended maximum)
+
+**Best for:** Complete documentation mapping, comprehensive analysis
+
+### 📄 PDF Documentation - Automatic Optimization
+
+The tool automatically detects PDF files and optimizes processing:
 
 ```bash
 python extract_api.py "https://bank.com/api-guide.pdf" \
@@ -91,19 +117,96 @@ python extract_api.py "https://bank.com/api-guide.pdf" \
   --bank ing
 ```
 
+**What happens:**
+- ✅ Detects PDF format automatically (`url.endswith('.pdf')`)
+- ✅ Uses extended timeout (2 minutes vs 30 seconds)
+- ✅ Optimized wait time for PDF rendering
+- ✅ Converts PDF content to markdown and HTML
+- ✅ Automatic retry with reduced parameters if timeout
+- ✅ Skips link crawling (not applicable to PDFs)
+
+**Best for:** PDF documentation, user guides, technical specifications
+
+### 🎛️ Advanced Configuration Examples
+
+#### Multi-format Output with Verbose Logging
+```bash
+python extract_api.py "https://developer.commerzbank.com" \
+  --country de \
+  --service-type all \
+  --bank commerzbank \
+  --recursive \
+  --max-depth 1 \
+  --format yaml \
+  --verbose
+```
+
+#### Custom Output Location
+```bash
+python extract_api.py "https://developers.brd.ro/psd2" \
+  --country ro \
+  --service-type aisp \
+  --bank brd \
+  --output "/custom/path/brd_documentation.json" \
+  --verbose
+```
+
+#### Quick Scan Mode (Non-recursive)
+```bash
+python extract_api.py "https://developer.ing.com/openbanking" \
+  --country nl \
+  --service-type pisp \
+  --bank ing
+```
+
+### 🚀 Command Execution Flow
+
+1. **URL Analysis**: Detects content type (PDF vs web page)
+2. **Parameter Optimization**: Adjusts timeouts and formats automatically  
+3. **Content Extraction**: Scrapes main page with optimized settings
+4. **Link Discovery**: Identifies relevant API documentation links
+5. **Recursive Processing**: Follows links if `--recursive` enabled
+6. **OpenAPI Detection**: Searches for API specifications
+7. **Content Organization**: Saves in structured format
+8. **Rate Limiting**: Respects API limits with automatic delays
+
 ## 📊 Command Line Options
 
-| Option | Short | Description | Required | Default |
-|--------|-------|-------------|----------|---------|
-| `url` | - | URL of API documentation to extract | ✅ | - |
-| `--country` | `-c` | Country code (e.g., ro, de, fr) | ✅ | - |
-| `--service-type` | `-s` | Service type: aisp, pisp, cbpii, all | ✅ | - |
-| `--bank` | `-b` | Bank name/identifier | ✅ | - |
-| `--output` | `-o` | Custom output file path | ❌ | auto-generated |
-| `--format` | `-f` | Output format: json, yaml | ❌ | json |
-| `--recursive` | `-r` | Enable recursive crawling | ❌ | false |
-| `--max-depth` | `-d` | Maximum crawl depth | ❌ | 3 |
-| `--verbose` | `-v` | Enable verbose output | ❌ | false |
+| Option | Short | Description | Required | Default | Example |
+|--------|-------|-------------|----------|---------|---------|
+| `url` | - | URL of API documentation to extract | ✅ | - | `"https://developer.bank.com"` |
+| `--country` | `-c` | Country code (ISO 3166-1 alpha-2) | ✅ | - | `ro`, `de`, `nl`, `fr`, `hu` |
+| `--service-type` | `-s` | PSD2 service type | ✅ | - | `aisp`, `pisp`, `cbpii`, `all` |
+| `--bank` | `-b` | Bank name/identifier (lowercase, underscore) | ✅ | - | `bnp_paribas`, `deutsche_bank` |
+| `--output` | `-o` | Custom output file path | ❌ | auto-generated | `"/path/to/custom.json"` |
+| `--format` | `-f` | Output format | ❌ | `json` | `json`, `yaml` |
+| `--recursive` | `-r` | Enable recursive link crawling | ❌ | `false` | - |
+| `--max-depth` | `-d` | Maximum recursion depth (1-5) | ❌ | `3` | `1`, `2`, `3` |
+| `--verbose` | `-v` | Enable detailed logging | ❌ | `false` | - |
+
+### 📋 Parameter Details
+
+#### Service Types (`--service-type`)
+- **`aisp`**: Account Information Service Provider - access to account data
+- **`pisp`**: Payment Initiation Service Provider - payment processing
+- **`cbpii`**: Card Based Payment Instrument Issuer - card payment confirmation
+- **`all`**: All service types (use when documentation covers multiple services)
+
+#### Country Codes (`--country`)
+Common European banking markets:
+- **`ro`**: Romania (BRD, BCR, Raiffeisen)
+- **`de`**: Germany (Deutsche Bank, Commerzbank)
+- **`nl`**: Netherlands (ING, ABN AMRO, KBC)
+- **`fr`**: France (BNP Paribas, Société Générale)
+- **`hu`**: Hungary (OTP Bank, K&H Bank)
+- **`it`**: Italy (UniCredit, Intesa Sanpaolo)
+- **`es`**: Spain (Santander, BBVA)
+
+#### Recursion Depth (`--max-depth`)
+- **`1`**: Main page + immediate child pages (recommended for quick scans)
+- **`2`**: Two levels deep (balanced approach)
+- **`3`**: Three levels deep (comprehensive, default)
+- **`4-5`**: Very deep crawling (use with caution, high API usage)
 
 ## 📁 Output Structure
 
@@ -214,15 +317,6 @@ python extract_api.py "https://developer.ing.com/api-guide.pdf" \
   --bank ing
 ```
 
-## 🚨 Error Handling
-
-The tool includes comprehensive error handling for:
-
-- **Network timeouts**: Automatic retry with reduced parameters
-- **Rate limiting**: Built-in delays between requests
-- **Invalid URLs**: Graceful error messages
-- **PDF processing**: Optimized parameters and fallback options
-- **Missing API keys**: Clear setup instructions
 
 ## 📈 Performance
 
@@ -238,49 +332,4 @@ The tool includes comprehensive error handling for:
 - **Safe File Handling**: Secure file operations
 - **No Sensitive Data Storage**: Only public documentation is extracted
 
-## 🐛 Troubleshooting
 
-### Common Issues
-
-1. **"FIRECRAWL_API_KEY not found"**
-   - Ensure `.env` file exists with valid API key
-   - Check environment variable is loaded correctly
-
-2. **"Payment Required" error**
-   - API key has exceeded free tier limits
-   - Wait for rate limit reset or upgrade plan
-
-3. **PDF timeout errors**
-   - Tool automatically retries with reduced parameters
-   - Large PDFs may require multiple attempts
-
-4. **No content extracted**
-   - Check if URL is accessible
-   - Verify the site doesn't block automated access
-   - Try with `--verbose` flag for detailed logging
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
-
-**Vlad** - *Initial work and development*
-
-## 🙏 Acknowledgments
-
-- [Firecrawl](https://firecrawl.dev) for the web scraping API
-- European Banking Authority for PSD2 guidelines
-- Berlin Group for Open Banking standards
-
----
-
-**Note**: This tool is designed for extracting publicly available API documentation. Always respect robots.txt and terms of service of target websites. 
