@@ -267,24 +267,6 @@ Each extracted file contains:
 }
 ```
 
-## 🏦 Supported Banks & Services
-
-The tool has been tested with major European banks including:
-
-- **Romania**: BRD, BCR, Raiffeisen
-- **Germany**: Deutsche Bank, Commerzbank
-- **Netherlands**: ING, ABN AMRO, KBC
-- **France**: BNP Paribas, Société Générale
-- **Hungary**: OTP Bank, K&H Bank
-
-### Service Types
-
-- **AISP** (Account Information Service Provider)
-- **PISP** (Payment Initiation Service Provider)  
-- **CBPII** (Card Based Payment Instrument Issuer)
-- **ALL** (All service types)
-
-## 🔍 Examples
 
 ### Example 1: Romanian Bank AISP
 
